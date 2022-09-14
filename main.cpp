@@ -1,22 +1,25 @@
+/* C++ section */
 #include <iostream>
 #include <fstream>
 #include <filesystem>
 #include <iomanip>
 
+/* C section */
 #include <cstdio>
 #include <cstring>
 
+/* OSSL section */
 #include <openssl/crypto.h>
 #include <openssl/engine.h>
 #include <openssl/conf.h>
 #include <openssl/evp.h>
 
-
+/* STL section */
 #include <vector>
 #include <algorithm>
 #include <string>
 
-
+/* function to encrypt using OpenSSL + Gost28147-89 algorithm */
 int encrypt(unsigned char* text, int text_len, unsigned char* key, unsigned char* cipher)
     {
     
@@ -54,7 +57,7 @@ int encrypt(unsigned char* text, int text_len, unsigned char* key, unsigned char
 
 }
 
-
+/* make bytearray from file contents */
 static std::vector<char> readAllBytes(const std::string& filename){
 
         std::ifstream ifs(filename, std::ios::binary|std::ios::ate);

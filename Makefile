@@ -1,6 +1,6 @@
 CXX=clang++
-CPPFLAGS=-std=c++17
-LDLIBS=-lcrypto
+CPPFLAGS=-Wall -std=c++17
+LDLIBS=-lcrypto -lssl
 RM=rm -f
 LDFLAGS=
 
