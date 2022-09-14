@@ -15,8 +15,6 @@ main: $(OBJS)
 
 main.o: main.cpp
 
-
-
 clean: 
 	$(RM) $(OBJS)
 distclean: clean
