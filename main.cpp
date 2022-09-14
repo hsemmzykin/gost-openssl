@@ -16,6 +16,7 @@
 #include <openssl/obj_mac.h>
 #include <openssl/hmac.h>
 
+
 /* STL section */
 #include <vector>
 #include <algorithm>
@@ -24,6 +25,12 @@
 /* function to encrypt using OpenSSL + Gost28147-89 algorithm */
 int encrypt(unsigned char* text, int text_len, unsigned char* key, unsigned char* cipher)
     {
+    ENGINE* engine = ENGINE_by_id("gost");   
+    
+    if ( !engine ){
+      perror("ENGINE_by_id() failed");
+      exit(-1);
+    }
     
     int cipher_len = 0;
     int len = 0;
@@ -33,11 +40,15 @@ int encrypt(unsigned char* text, int text_len, unsigned char* key, unsigned char
       perror("EVP_CIPHER_CTX_new() failed");
       exit(-1);
     }
-    const EVP_CIPHER* ciph = EVP_get_cipherbynid(NID_id_Gost28147_89);
+    const EVP_CIPHER* ciph = EVP_get_cipherbyname("gost89");
     
-    ENGINE *engine_gost = ENGINE_by_id("gost");
-    
-    if ( !EVP_EncryptInit_ex(ctx, ciph, engine_gost, key, NULL)){
+    if (! ciph ){
+      perror("EVP_get_cipherbyname() failed");
+      exit(-1);
+    }
+
+
+    if ( !EVP_EncryptInit_ex(ctx, ciph, engine, key, NULL)){
         perror("EVP_EncryptInit_ex() failed");
         exit(-1);
     }
@@ -80,14 +91,14 @@ static std::vector<char> readAllBytes(const std::string& filename){
 }
 
 int main(int argc, char** argv){
- /*   OPENSSL_add_all_algorithms_conf(); */
+  OPENSSL_add_all_algorithms_conf(); 
   if (argc == 1){
     std::cerr << "Nothing provided\n";
     return -1;
   }
   
   std::vector<std::string> arguments (argv + 1, argv + argc);
-  unsigned key[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+  unsigned char* key = (unsigned char*) "aboba";
 
   for (auto arg : arguments){
     if (!std::filesystem::is_directory("./" + arg) && std::filesystem::exists("./" + arg)){
@@ -96,7 +107,7 @@ int main(int argc, char** argv){
           std::vector<char> res_bytes = readAllBytes("./" + arg);
           unsigned char* text = (unsigned char*)res_bytes.data();
           int text_len = strlen((const char*) text);
-          unsigned char cipher[64];
+          unsigned char cipher[1000];
           int cipher_len = encrypt(text, text_len, (unsigned char*) key, cipher);
           for (int i = 0; i < cipher_len; ++i){
             out << std::hex << std::setw(2) << std::setfill('0') << cipher[i] << " ";
