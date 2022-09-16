@@ -15,7 +15,7 @@
 #include <openssl/evp.h>
 #include <openssl/obj_mac.h>
 #include <openssl/hmac.h>
-
+#include <openssl/err.h>
 
 /* STL section */
 #include <vector>
@@ -47,8 +47,11 @@ int encrypt(unsigned char* text, int text_len, unsigned char* key, unsigned char
       exit(-1);
     }
 
-
-    if ( !EVP_EncryptInit_ex(ctx, ciph, engine, key, NULL)){
+    unsigned char iv[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+    if ( !EVP_EncryptInit_ex(ctx, ciph, engine, key, iv)){
+        int err = ERR_get_error();
+        ERR_load_crypto_strings();
+        std::cerr << ERR_error_string(err, NULL) << std::endl;
         perror("EVP_EncryptInit_ex() failed");
         exit(-1);
     }
@@ -98,7 +101,7 @@ int main(int argc, char** argv){
   }
   
   std::vector<std::string> arguments (argv + 1, argv + argc);
-  unsigned char* key = (unsigned char*) "aboba";
+  unsigned char* key = (unsigned char*) "abobaboba";
 
   for (auto arg : arguments){
     if (!std::filesystem::is_directory("./" + arg) && std::filesystem::exists("./" + arg)){
